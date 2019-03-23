@@ -1,0 +1,10 @@
+---
+# Max amount of animals
+maxAnimals: 30
+
+# Max amount of monsters
+maxMonsters: 30
+
+# Max amount of item entities
+maxItemEntities: 30
+...

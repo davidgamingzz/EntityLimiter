@@ -1,0 +1,8 @@
+name: EntityLimiter
+main: david\entityLimiter\Loader
+load: POSTWORLD
+version: "1.0"
+api: 3.0.0
+authors:
+  - David
+description: Limit entities
