@@ -3,7 +3,6 @@
 namespace david\entityLimiter;
 
 use pocketmine\entity\Animal;
-use pocketmine\entity\Entity;
 use pocketmine\entity\Human;
 use pocketmine\entity\Monster;
 use pocketmine\entity\object\ItemEntity;
@@ -25,6 +24,9 @@ class EventListener implements Listener {
     /** @var ItemEntity[] */
     private $itemEntities = [];
 
+    /** @var string[] */
+    private $ids = [];
+
     /**
      * EventListener constructor.
      *
@@ -45,20 +47,24 @@ class EventListener implements Listener {
             return;
         }
         $despawn = null;
+        $uuid = uniqid();
         if($entity instanceof Animal) {
-            $this->animals[$entity->getId()] = $entity;
+            $this->ids[$entity->getId()] = $uuid;
+            $this->animals[$uuid] = $entity;
             if(count($this->animals) > $config->get("maxAnimals")) {
                 $despawn = array_shift($this->animals);
             }
         }
         if($entity instanceof Monster) {
-            $this->monsters[$entity->getId()] = $entity;
+            $this->ids[$entity->getId()] = $uuid;
+            $this->monsters[$uuid] = $entity;
             if(count($this->monsters) > $config->get("maxMonsters")) {
                 $despawn = array_shift($this->monsters);
             }
         }
         if($entity instanceof ItemEntity) {
-            $this->itemEntities[$entity->getId()] = $entity;
+            $this->ids[$entity->getId()] = $uuid;
+            $this->itemEntities[$uuid] = $entity;
             if(count($this->itemEntities) > $config->get("maxItemEntities")) {
                 $despawn = array_shift($this->itemEntities);
             }
@@ -78,14 +84,22 @@ class EventListener implements Listener {
      */
     public function onEntityDespawn(EntityDespawnEvent $event): void {
         $entity = $event->getEntity();
-        if(isset($this->animals[$entity->getId()])) {
-            unset($this->animals[$entity->getId()]);
+        if(!isset($this->ids[$entity->getId()])) {
+            return;
         }
-        if(isset($this->monsters[$entity->getId()])) {
-            unset($this->monsters[$entity->getId()]);
+        $uuid = $this->ids[$entity->getId()];
+        unset($this->ids[$entity->getId()]);
+        if(isset($this->animals[$uuid])) {
+            unset($this->animals[$uuid]);
+            return;
         }
-        if(isset($this->itemEntities[$entity->getId()])) {
-            unset($this->itemEntities[$entity->getId()]);
+        if(isset($this->monsters[$uuid])) {
+            unset($this->monsters[$uuid]);
+            return;
+        }
+        if(isset($this->itemEntities[$uuid])) {
+            unset($this->itemEntities[$uuid]);
+            return;
         }
     }
 }
